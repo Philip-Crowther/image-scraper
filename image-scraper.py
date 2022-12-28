@@ -24,7 +24,7 @@ def main():
         # find all images on page
         images = soup.find_all('img')
 
-
+        count = 0
         #cycle through and retrieve all images 
         for i in range(len(images)):
 
@@ -33,17 +33,18 @@ def main():
             # check image for source: if it isn't, then go to next image
             if 'src' not in image.attrs:
                 continue
+            count += 1
             # place image url into variable
             url = image.attrs['src']
 
             # check if directory exists
             if not os.path.isdir(args.directory):
-                # return error message if invalid path is given
-                print("Error: No such directory")
-                return
+                # create directory if it doesn't exist
+                os.mkdir(args.directory)
+                
 
             # prep file name/location
-            location = os.path.join(args.directory, str(i) + '.jpg')
+            location = os.path.join(args.directory, str(count) + '.jpg')
             # make request
             r = urllib.request.urlretrieve(url, location)
 
