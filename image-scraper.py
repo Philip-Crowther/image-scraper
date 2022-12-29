@@ -6,14 +6,17 @@ import os
 
 def main():
 
-    # initialize argument parser
-    parser = argparse.ArgumentParser()
-    # add arguments
-    parser.add_argument('directory', type=str)
-    parser.add_argument('url', type=str)
-    # parse arguments
-    args = parser.parse_args()
+    def get_arguments():
+        # initialize argument parser
+        parser = argparse.ArgumentParser()
+        # add arguments
+        parser.add_argument('directory', type=str)
+        parser.add_argument('url', type=str)
+        # parse arguments
+        return parser.parse_args()
 
+    args = get_arguments()
+    
     # make HTTP request and perform main operations
     with urllib.request.urlopen(args.url) as response:
 
@@ -28,25 +31,28 @@ def main():
         #cycle through and retrieve all images 
         for i in range(len(images)):
 
-            # temp/testing: place image info into variable
-            image = images[i]
-            # check image for source: if it isn't, then go to next image
-            if 'src' not in image.attrs:
+            # check image for source: if there isn't one, then go to next image
+            if 'src' not in images[i].attrs:
                 continue
             count += 1
-            # place image url into variable
-            url = image.attrs['src']
 
-            # check if directory exists
-            if not os.path.isdir(args.directory):
-                # create directory if it doesn't exist
-                os.mkdir(args.directory)
+            # get image url
+            url = images[i].attrs['src']
+
+            def check_path(path):
+                # check if path/directory exists
+                if not os.path.isdir(path):
+                    # create directory if it doesn't exist
+                    os.mkdir(path)
                 
+            def save_image(url, directory, count):
+                # prep file name/location
+                location = os.path.join(directory, str(count) + '.jpg')
+                # make request
+                r = urllib.request.urlretrieve(url, location)
 
-            # prep file name/location
-            location = os.path.join(args.directory, str(count) + '.jpg')
-            # make request
-            r = urllib.request.urlretrieve(url, location)
+            check_path(args.directory)
+            save_image(url, args.directory, count)
 
         
 if __name__ == '__main__':
