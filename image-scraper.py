@@ -25,21 +25,23 @@ class ImageScraper():
             count = 0
             #cycle through and retrieve all images 
             for i in range(len(images)):
-
-                # check image for source: if there isn't one, then go to next image
-                if 'src' not in images[i].attrs:
+                url = self.check_url(images[i])
+                if not url:
                     continue
                 count += 1
-
-                # get image url
-                url = images[i].attrs['src']
-
                 self.check_path(self.args.directory)
                 self.save_image(url, self.args.directory, count)
 
     def run_recursive(self):
         # scrapes page provided and links on page with same domain
         pass
+
+    def check_url(self, image):
+        # check image for source: return nothing if not
+        if 'src' not in image.attrs:
+            return None
+        # return image url
+        return image.attrs['src']
 
     @staticmethod
     def check_path(path):
