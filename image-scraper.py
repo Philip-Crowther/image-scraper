@@ -6,16 +6,14 @@ import os
 class ImageScraper():
     def __init__(self, args) -> None:
         self.args = args
-        self.pages_to_visit = []
-        self.visited_pages = set()
     
     def run(self):
         # scrapes only the single page provided
         # make HTTP request and perform main operations
         with urllib.request.urlopen(args.url) as response:
-            # fins images
+            # finds images
             images = self.find_images(response)
-            #cycle through and retrieve all images 
+            # cycle through and retrieve all images 
             count = 0
             for i in range(len(images)):
                 url = self.check_url(images[i])
@@ -24,10 +22,6 @@ class ImageScraper():
                 count += 1
                 self.check_path(self.args.directory)
                 self.save_image(url, self.args.directory, count)
-
-    def run_recursive(self):
-        # scrapes page provided and links on page with same domain
-        pass
 
     def find_images(self, response):
         # read HTML
@@ -62,7 +56,6 @@ def get_arguments():
     # add arguments
     parser.add_argument('directory', type=str)
     parser.add_argument('url', type=str)
-    parser.add_argument('-r', '--recursive', action='store_const', const=True)
 
     # parse and return arguments
     return parser.parse_args()
@@ -75,10 +68,5 @@ if __name__ == '__main__':
     scraper = ImageScraper(args)
 
     # scrape
-    if args.recursive:
-        # runs recursive version that finds other sites under same domain
-        scraper.run_recursive()
-    else:
-        # runs the single site version
-        scraper.run()
+    scraper.run()
 
