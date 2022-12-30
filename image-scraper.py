@@ -14,16 +14,10 @@ class ImageScraper():
         # scrapes only the single page provided
         # make HTTP request and perform main operations
         with urllib.request.urlopen(args.url) as response:
-
-            # read HTML
-            page = response.read()
-            # parse HTML
-            soup = BeautifulSoup(page, 'lxml')
-            # find all images on page
-            images = soup.find_all('img')
-
-            count = 0
+            # fins images
+            images = self.find_images(response)
             #cycle through and retrieve all images 
+            count = 0
             for i in range(len(images)):
                 url = self.check_url(images[i])
                 if not url:
@@ -31,6 +25,14 @@ class ImageScraper():
                 count += 1
                 self.check_path(self.args.directory)
                 self.save_image(url, self.args.directory, count)
+
+    def find_images(self, response):
+        # read HTML
+        page = response.read()
+        # parse HTML
+        soup = BeautifulSoup(page, 'lxml')
+        # find all images on page
+        return soup.find_all('img')
 
     def run_recursive(self):
         # scrapes page provided and links on page with same domain
@@ -43,14 +45,12 @@ class ImageScraper():
         # return image url
         return image.attrs['src']
 
-    @staticmethod
-    def check_path(path):
+    def check_path(self, path):
         # check if path/directory exists; build path if it doesn't
         if not os.path.isdir(path):
             os.mkdir(path)
     
-    @staticmethod
-    def save_image(url, directory, image_number=1):
+    def save_image(self, url, directory, image_number=1):
         # prep file name/location
         location = os.path.join(directory, str(image_number) + '.jpg')
         # make request
