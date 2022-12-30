@@ -26,6 +26,10 @@ class ImageScraper():
                 self.check_path(self.args.directory)
                 self.save_image(url, self.args.directory, count)
 
+    def run_recursive(self):
+        # scrapes page provided and links on page with same domain
+        pass
+
     def find_images(self, response):
         # read HTML
         page = response.read()
@@ -33,10 +37,6 @@ class ImageScraper():
         soup = BeautifulSoup(page, 'lxml')
         # find all images on page
         return soup.find_all('img')
-
-    def run_recursive(self):
-        # scrapes page provided and links on page with same domain
-        pass
 
     def check_url(self, image):
         # check image for source: return nothing if not
@@ -56,9 +56,7 @@ class ImageScraper():
         # make request
         r = urllib.request.urlretrieve(url, location)
 
-        
-if __name__ == '__main__':
-
+def get_arguments():
     # initialize argument parser
     parser = argparse.ArgumentParser()
 
@@ -67,9 +65,13 @@ if __name__ == '__main__':
     parser.add_argument('url', type=str)
     parser.add_argument('-r', '--recursive', action='store_const', const=True)
 
-    # parse arguments
-    args = parser.parse_args()
-
+    # parse and return arguments
+    return parser.parse_args()
+        
+if __name__ == '__main__':
+    
+    # get arguments
+    args = get_arguments()
     # construct scraper
     scraper = ImageScraper(args)
 
