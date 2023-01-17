@@ -5,7 +5,7 @@ import os
 
 class ImageScraper():
     def __init__(self, args) -> None:
-        self.args = args
+        self.args = args  # [directory, url]
         self.pages_to_visit = []
         self.visited_pages = set()
     
@@ -27,7 +27,10 @@ class ImageScraper():
 
     def run_recursive(self):
         # scrapes page provided and links on page with same domain
-        pass
+        self.pages_to_visit.append(args.url)
+        while self.pages_to_visit:
+            current_page = self.pages_to_visit.pop()
+            self.visit_page(current_page)
 
     def find_images(self, response):
         # read HTML
@@ -36,6 +39,12 @@ class ImageScraper():
         soup = BeautifulSoup(page, 'lxml')
         # find all images on page
         return soup.find_all('img')
+
+    def find_links(self):
+        pass
+
+    def visit_page(self):
+        pass
 
     def check_url(self, image):
         # check image for source: return nothing if not
