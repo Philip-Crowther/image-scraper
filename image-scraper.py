@@ -9,11 +9,13 @@ class ImageScraper():
         self.pages_to_visit = []
         self.visited_pages = set()
     
-    def run(self):
+    def run(self, url=None):
         # scrapes only the single page provided
+        if not url:
+            url = self.args.url
         # make HTTP request and perform main operations
-        with urllib.request.urlopen(args.url) as response:
-            # fins images
+        with urllib.request.urlopen(url) as response:
+            # finds images
             images = self.find_images(response)
             #cycle through and retrieve all images 
             count = 0
@@ -30,7 +32,7 @@ class ImageScraper():
         self.pages_to_visit.append(args.url)
         while self.pages_to_visit:
             current_page = self.pages_to_visit.pop()
-            self.visit_page(current_page)
+            self.run(current_page)
 
     def find_images(self, response):
         # read HTML
@@ -42,10 +44,6 @@ class ImageScraper():
 
     def find_links(self):
         # traverses page and finds unvisited links on the same domain
-        pass
-
-    def visit_page(self):
-        # visits page and collects images
         pass
 
     def check_url(self, image):
