@@ -41,9 +41,11 @@ class ImageScraper():
         return soup.find_all('img')
 
     def find_links(self):
+        # traverses page and finds unvisited links on the same domain
         pass
 
     def visit_page(self):
+        # visits page and collects images
         pass
 
     def check_url(self, image):
