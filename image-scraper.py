@@ -15,25 +15,38 @@ class ImageScraper():
             url = self.args.url
         # make HTTP request and perform main operations
         with urllib.request.urlopen(url) as response:
-            # finds images
-            images = self.find_images(response)
-            #cycle through and retrieve all images 
-            self.retrieve_images(url, images)
+            # read html into BeautifulSoup object
+            soup = BeautifulSoup(response.read(), 'lxml')
+            # scrape images
+            self.scrape_images(soup, url)
 
     def run_recursive(self):
         # scrapes page provided and links on page with same domain
         self.pages_to_visit.append(args.url)
+        # scrape until no more pages to visit
         while self.pages_to_visit:
+            # get next page to visit
             current_page = self.pages_to_visit.pop()
+            # add page to visited
+            self.visited_pages.add(current_page)
+            # scrape for images
             self.run(current_page)
+            # add new pages to scrape to stack
+            self.find_links(current_page)
 
-    def find_images(self, response):
-        # read HTML
-        page = response.read()
-        # parse HTML
-        soup = BeautifulSoup(page, 'lxml')
+    def scrape_images(self, soup, url):
+        # finds images
+        images = self.find_images(soup)
+        #cycle through and retrieve all images 
+        self.retrieve_images(url, images)
+
+    def find_images(self, soup):
         # find all images on page
         return soup.find_all('img')
+
+    def find_links(self, soup):
+        # traverses page and finds unvisited links on the same domain
+        pass
 
     def retrieve_images(self, url, images):
         # cycle through and retrieve all images
@@ -45,10 +58,6 @@ class ImageScraper():
             count += 1
             self.check_path(self.args.directory)
             self.save_image(url, self.args.directory, count)
-
-    def find_links(self):
-        # traverses page and finds unvisited links on the same domain
-        pass
 
     def check_url_for_source(self, image):
         # check image for source: return nothing if not
