@@ -10,7 +10,7 @@ class ImageScraper():
         self.visited_pages = set()
     
     def run(self, url=None):
-        # scrapes only the single page provided
+        # scrapes url for images and links
         if not url:
             url = self.args.url
         # make HTTP request and perform main operations
@@ -39,7 +39,7 @@ class ImageScraper():
         # cycle through and retrieve all images
         count = 0
         for i in range(len(images)):
-            url = self.check_url(images[i])
+            url = self.check_url_for_source(images[i])
             if not url:
                 continue
             count += 1
@@ -50,7 +50,7 @@ class ImageScraper():
         # traverses page and finds unvisited links on the same domain
         pass
 
-    def check_url(self, image):
+    def check_url_for_source(self, image):
         # check image for source: return nothing if not
         if 'src' not in image.attrs:
             return None
