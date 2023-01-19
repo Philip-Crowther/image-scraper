@@ -9,30 +9,36 @@ class ImageScraper():
         self.pages_to_visit = []
         self.visited_pages = set()
     
-    def run(self, url=None):
-        # scrapes url for images and links
-        if not url:
-            url = self.args.url
+    def run(self):
         # make HTTP request and perform main operations
-        with urllib.request.urlopen(url) as response:
+        with urllib.request.urlopen(self.args.url) as response:
             # read html into BeautifulSoup object
             soup = BeautifulSoup(response.read(), 'lxml')
             # scrape images
-            self.scrape_images(soup, url)
+            self.scrape_images(soup, self.args.url)
 
     def run_recursive(self):
         # scrapes page provided and links on page with same domain
         self.pages_to_visit.append(args.url)
         # scrape until no more pages to visit
         while self.pages_to_visit:
-            # get next page to visit
-            current_page = self.pages_to_visit.pop()
-            # add page to visited
-            self.visited_pages.add(current_page)
-            # scrape for images
-            self.run(current_page)
-            # add new pages to scrape to stack
-            self.find_links(current_page)
+            # get next page
+            current_page = self.get_page()
+            # make HTTP request and perform main operations 
+            with urllib.request.urlopen(current_page) as response:
+                # read html into BeautifulSoup object
+                soup = BeautifulSoup(response.read(), 'lxml')
+                # scrape images
+                self.scrape_images(soup, current_page)
+                # # add new pages to scrape to stack
+                # self.find_links(current_page)
+    
+    def get_page(self):
+        # get next page to visit
+        current_page = self.pages_to_visit.pop()
+        # add page to visited
+        self.visited_pages.add(current_page)
+        return current_page
 
     def scrape_images(self, soup, url):
         # finds images
