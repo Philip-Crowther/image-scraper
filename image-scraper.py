@@ -18,14 +18,7 @@ class ImageScraper():
             # finds images
             images = self.find_images(response)
             #cycle through and retrieve all images 
-            count = 0
-            for i in range(len(images)):
-                url = self.check_url(images[i])
-                if not url:
-                    continue
-                count += 1
-                self.check_path(self.args.directory)
-                self.save_image(url, self.args.directory, count)
+            self.retrieve_images(url, images)
 
     def run_recursive(self):
         # scrapes page provided and links on page with same domain
@@ -41,6 +34,17 @@ class ImageScraper():
         soup = BeautifulSoup(page, 'lxml')
         # find all images on page
         return soup.find_all('img')
+
+    def retrieve_images(self, url, images):
+        # cycle through and retrieve all images
+        count = 0
+        for i in range(len(images)):
+            url = self.check_url(images[i])
+            if not url:
+                continue
+            count += 1
+            self.check_path(self.args.directory)
+            self.save_image(url, self.args.directory, count)
 
     def find_links(self):
         # traverses page and finds unvisited links on the same domain
