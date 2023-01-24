@@ -6,6 +6,7 @@ import os
 class ImageScraper():
     def __init__(self, args) -> None:
         self.args = args  # [directory, url]
+        self.domain = None ## TODO
         self.pages_to_visit = []
         self.visited_pages = set()
     
@@ -31,7 +32,7 @@ class ImageScraper():
                 # scrape images
                 self.scrape_images(soup, current_page)
                 # # add new pages to scrape to stack
-                # self.find_links(current_page)
+                # self.find_links(soup, current_page)
     
     def get_page(self):
         # get next page to visit
@@ -52,7 +53,25 @@ class ImageScraper():
 
     def find_links(self, soup):
         # traverses page and finds unvisited links on the same domain
-        pass
+        # find all links
+        links = soup.find_all('href')  ### check here if things go wrong
+        # iterate through links, test if it's on the same domain, then if it's been visited
+        for i in range(len(links)):
+            if self.link_valid(links[i]):
+                # add to pages to visit
+                self.pages_to_visit.append(links[i])
+        
+    def link_valid(self, link):
+        # if link is relative, construct url
+        if self.relative_link(link):
+            link = self.domain + link
+        # if link isn't relative, check to see if it's on the same domain
+        elif not self.same_domain(link):
+            return False
+        # check to see if the link has been visited before
+        if link in self.visited_pages:
+            return False
+        return True
 
     def retrieve_images(self, url, images):
         # cycle through and retrieve all images
