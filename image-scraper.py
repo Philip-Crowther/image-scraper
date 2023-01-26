@@ -61,17 +61,18 @@ class ImageScraper():
             links.append(link.get('href'))
         # iterate through links, test if it's on the same domain, then if it's been visited
         for i in range(len(links)):
-            link = self.absolute_link(links[i]) if self.is_relative_link(links[i]) else links[i]
+            link = self.build_absolute_link(links[i]) if self.is_relative_link(links[i]) else links[i]
             if self.link_valid(link):
                 # add to pages to visit
                 self.pages_to_visit.append(link)
 
-    def absolute_link(self, link):
+    def build_absolute_link(self, link):
         return self.parsed_url.scheme + '://' + self.parsed_url.netloc + link
     
     def is_relative_link(self, link):
         # return True if link is relative
-        return True # TODO
+        parsed = urlparse(link)
+        return self.parsed_url.scheme == parsed.scheme and self.parsed_url.netloc == parsed.netloc
 
     def link_valid(self, link):
         # check to see if the link has been visited before
