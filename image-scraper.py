@@ -1,12 +1,14 @@
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse
 import argparse
 import urllib.request
 import os
 
+
 class ImageScraper():
     def __init__(self, args) -> None:
         self.args = args  # [directory, url]
-        self.domain = None ## TODO
+        self.parsed_url = urlparse(args.url)  # named tuple - some items: scheme ('html'), netloc (domain), path
         self.pages_to_visit = []
         self.visited_pages = set()
     
@@ -54,7 +56,9 @@ class ImageScraper():
     def find_links(self, soup):
         # traverses page and finds unvisited links on the same domain
         # find all links
-        links = soup.find_all('href')  ### check here if things go wrong
+        links = []
+        for link in soup.find_all('a'): 
+            links.append(link.get('href'))
         # iterate through links, test if it's on the same domain, then if it's been visited
         for i in range(len(links)):
             if self.link_valid(links[i]):
@@ -64,7 +68,7 @@ class ImageScraper():
     def link_valid(self, link):
         # if link is relative, construct url
         if self.relative_link(link):
-            link = self.domain + link
+            link = self.parsed_url.scheme + '://' + self.parsed_url.netloc + link
         # if link isn't relative, check to see if it's on the same domain
         elif not self.same_domain(link):
             return False
@@ -72,6 +76,10 @@ class ImageScraper():
         if link in self.visited_pages:
             return False
         return True
+
+    def relative_link(self, link):
+        # return True if link is relative
+        return True # TODO
 
     def retrieve_images(self, url, images):
         # cycle through and retrieve all images
