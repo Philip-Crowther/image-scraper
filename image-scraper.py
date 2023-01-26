@@ -34,7 +34,7 @@ class ImageScraper():
                 # scrape images
                 self.scrape_images(soup, current_page)
                 # # add new pages to scrape to stack
-                # self.find_links(soup, current_page)
+                self.find_links(soup, current_page)
     
     def get_page(self):
         # get next page to visit
@@ -72,7 +72,7 @@ class ImageScraper():
     def is_relative_link(self, link):
         # return True if link is relative
         parsed = urlparse(link)
-        return self.parsed_url.scheme == parsed.scheme and self.parsed_url.netloc == parsed.netloc
+        return self.parsed_url.scheme == parsed.scheme and self.parsed_url.netloc == parsed.netlocfirs
 
     def link_valid(self, link):
         # check to see if the link has been visited before
