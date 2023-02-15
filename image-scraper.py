@@ -71,8 +71,7 @@ class ImageScraper():
     
     def is_relative_link(self, link):  # TODO: fix - this doesn't test for relative link
         # return True if link is relative
-        parsed = urlparse(link)
-        return not (self.parsed_url.scheme == parsed.scheme and self.parsed_url.netloc == parsed.netloc)
+        return not urlparse(link).netloc
 
     def link_valid(self, link):
         # check to see if the link has been visited before
