@@ -53,7 +53,7 @@ class ImageScraper():
         # find all images on page
         return soup.find_all('img')
 
-    def find_links(self, soup):
+    def find_links(self, soup):  # TODO: test this
         # traverses page and finds unvisited links on the same domain
         # find all links
         links = []
@@ -62,17 +62,17 @@ class ImageScraper():
         # iterate through links, test if it's on the same domain, then if it's been visited
         for i in range(len(links)):
             link = self.build_absolute_link(links[i]) if self.is_relative_link(links[i]) else links[i]
-            if self.link_valid(link):
+            if self.link_valid(link): 
                 # add to pages to visit
                 self.pages_to_visit.append(link)
 
     def build_absolute_link(self, link):
         return self.parsed_url.scheme + '://' + self.parsed_url.netloc + link
     
-    def is_relative_link(self, link):
+    def is_relative_link(self, link):  # TODO: fix - this doesn't test for relative link
         # return True if link is relative
         parsed = urlparse(link)
-        return self.parsed_url.scheme == parsed.scheme and self.parsed_url.netloc == parsed.netlocfirs
+        return not (self.parsed_url.scheme == parsed.scheme and self.parsed_url.netloc == parsed.netloc)
 
     def link_valid(self, link):
         # check to see if the link has been visited before
@@ -82,6 +82,11 @@ class ImageScraper():
         if not self.same_domain(link):
             return False
         return True
+
+    def same_domain(self, link):
+        # test if provided link is on the same domain as the link passed during init
+        parsed= urlparse(link)
+        return self.parsed_url.netloc == parsed.netloc and self.parsed_url.scheme == parsed.scheme
 
     def retrieve_images(self, url, images):
         # cycle through and retrieve all images
