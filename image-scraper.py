@@ -25,16 +25,20 @@ class ImageScraper():
         self.pages_to_visit.append(args.url)
         # scrape until no more pages to visit
         while self.pages_to_visit:
-            # get next page
+            # get next page (also adds page to visted_pages)
             current_page = self.get_page()
-            # make HTTP request and perform main operations 
-            with urllib.request.urlopen(current_page) as response:
-                # read html into BeautifulSoup object
-                soup = BeautifulSoup(response.read(), 'lxml')
-                # scrape images
-                self.scrape_images(soup, current_page)
-                # # add new pages to scrape to stack
-                self.find_links(soup, current_page)
+            try:  # skips pages that return errors
+                # make HTTP request and perform main operations 
+                with urllib.request.urlopen(current_page) as response:
+                    # read html into BeautifulSoup object
+                    soup = BeautifulSoup(response.read(), 'lxml')
+                    # scrape images
+                    self.scrape_images(soup, current_page)
+                    # find new pages to add to stack
+                    self.find_links(soup)
+            except:
+                continue
+
     
     def get_page(self):
         # get next page to visit
@@ -54,22 +58,25 @@ class ImageScraper():
         return soup.find_all('img')
 
     def find_links(self, soup):  # TODO: test this
-        # traverses page and finds unvisited links on the same domain
-        # find all links
+        # traverses page and finds valid links to add to pages to visit
         links = []
+        # find all links on the page
         for link in soup.find_all('a'): 
             links.append(link.get('href'))
         # iterate through links, test if it's on the same domain, then if it's been visited
         for i in range(len(links)):
+            # make sure link is full
             link = self.build_absolute_link(links[i]) if self.is_relative_link(links[i]) else links[i]
+            # check if link is valid
             if self.link_valid(link): 
                 # add to pages to visit
                 self.pages_to_visit.append(link)
 
     def build_absolute_link(self, link):
+        # returns absolute link from relative
         return self.parsed_url.scheme + '://' + self.parsed_url.netloc + link
     
-    def is_relative_link(self, link):  # TODO: fix - this doesn't test for relative link
+    def is_relative_link(self, link):  
         # return True if link is relative
         return not urlparse(link).netloc
 
