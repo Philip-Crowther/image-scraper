@@ -11,6 +11,7 @@ class ImageScraper():
         self.parsed_url = urlparse(args.url)  # named tuple - some items: scheme ('html'), netloc (domain), path
         self.pages_to_visit = []
         self.visited_pages = set()
+        self.check_path(args.directory)
     
     def run(self):
         # make HTTP request and perform main operations
@@ -20,7 +21,7 @@ class ImageScraper():
             # scrape images
             self.scrape_images(soup, self.args.url)
 
-    def run_recursive(self):
+    def run_recursive(self):  # TODO: add limiter to stop search from running for too long
         # scrapes page provided and links on page with same domain
         self.pages_to_visit.append(args.url)
         # scrape until no more pages to visit
@@ -38,7 +39,6 @@ class ImageScraper():
                     self.find_links(soup)
             except:
                 continue
-
     
     def get_page(self):
         # get next page to visit
@@ -46,18 +46,12 @@ class ImageScraper():
         # add page to visited
         self.visited_pages.add(current_page)
         return current_page
-
-    def scrape_images(self, soup, url):
-        # finds images
-        images = self.find_images(soup)
-        #cycle through and retrieve all images 
-        self.retrieve_images(url, images)
-
+ 
     def find_images(self, soup):
         # find all images on page
         return soup.find_all('img')
 
-    def find_links(self, soup):  # TODO: test this
+    def find_links(self, soup): 
         # traverses page and finds valid links to add to pages to visit
         links = []
         # find all links on the page
@@ -68,7 +62,7 @@ class ImageScraper():
             # make sure link is full
             link = self.build_absolute_link(links[i]) if self.is_relative_link(links[i]) else links[i]
             # check if link is valid
-            if self.link_valid(link): 
+            if self.link_valid(link):
                 # add to pages to visit
                 self.pages_to_visit.append(link)
 
@@ -94,7 +88,17 @@ class ImageScraper():
         parsed= urlparse(link)
         return self.parsed_url.netloc == parsed.netloc and self.parsed_url.scheme == parsed.scheme
 
-    def retrieve_images(self, url, images):
+    def scrape_images(self, soup, url):
+        # finds images
+        images = self.find_images(soup)
+        # director
+        directory = os.path.join(self.args.directory, soup.title.string)
+        # ensure that the current planned directory exists
+        self.check_path(directory)
+        #cycle through and retrieve all images 
+        self.retrieve_images(url, images, directory)
+
+    def retrieve_images(self, url, images, directory): 
         # cycle through and retrieve all images
         count = 0
         for i in range(len(images)):
@@ -102,8 +106,7 @@ class ImageScraper():
             if not url:
                 continue
             count += 1
-            self.check_path(self.args.directory)
-            self.save_image(url, self.args.directory, count)
+            self.save_image(url, directory, count)
 
     def check_url_for_source(self, image):
         # check image for source: return nothing if not
