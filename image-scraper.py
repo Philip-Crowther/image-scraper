@@ -28,7 +28,8 @@ class ImageScraper():
         while self.pages_to_visit:
             # get next page (also adds page to visted_pages)
             current_page = self.get_page()
-            try:  # skips pages that return errors
+            # skips pages that return errors  # TODO: replace
+            try:
                 # make HTTP request and perform main operations 
                 with urllib.request.urlopen(current_page) as response:
                     # read html into BeautifulSoup object
@@ -68,7 +69,12 @@ class ImageScraper():
 
     def build_absolute_link(self, link):
         # returns absolute link from relative
-        return self.parsed_url.scheme + '://' + self.parsed_url.netloc + link
+        base = self.parsed_url.scheme + '://' + self.parsed_url.netloc
+        if not link:
+            return base
+        if link[0] != '/':
+            link = '/' + link
+        return base + link
     
     def is_relative_link(self, link):  
         # return True if link is relative
